@@ -329,7 +329,7 @@ export default function BlogPage() {
                 <Link key={country.id} href={`/blog/country/${country.slug}`}>
                   <div className="border-2 border-neutral-200 hover:border-cta-500 rounded-lg p-3 text-center hover:bg-cta-50 transition-all">
                     <div className="text-2xl mb-1">{country.flag_emoji || '🌍'}</div>
-                    <h3 className="font-bold text-neutral-900 text-xs">{country.name}</h3>
+                    <h3 className="font-bold text-neutral-900 text-2xl">{country.name}</h3>
                   </div>
                 </Link>
               ))}

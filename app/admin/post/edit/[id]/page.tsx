@@ -190,21 +190,21 @@ export default function EditPostPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.back()}
-                className="px-4 py-2 text-charcoal-600 hover:bg-charcoal-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-charcoal-600 hover:bg-charcoal-100 rounded-lg border transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveDraft}
                 disabled={isUpdating}
-                className="flex items-center gap-2 px-6 py-2 bg-charcoal-600 text-white rounded-lg font-semibold hover:bg-charcoal-700 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2 bg-charcoal-600 rounded-lg font-semibold hover:bg-charcoal-700 border transition-colors disabled:opacity-50"
               >
                 <FaSave /> Save Draft
               </button>
               <button
                 onClick={handlePublish}
                 disabled={isUpdating}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-forest-600 to-forest-700 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-forest-600 to-forest-700 rounded-lg border font-semibold hover:shadow-lg transition-all disabled:opacity-50"
               >
                 <FaEye /> {formData.status === 'published' ? 'Update' : 'Publish'}
               </button>

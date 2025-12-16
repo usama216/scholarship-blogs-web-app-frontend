@@ -16,9 +16,11 @@ import {
   FaChartLine,
   FaSave,
   FaGlobe,
-  FaSearch
+  FaSearch,
+  FaEnvelope
 } from 'react-icons/fa'
 import { useGetPostsQuery, useDeletePostMutation, useUpdatePostStatusMutation, useGetCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useGetCountriesQuery, useCreateCountryMutation, useUpdateCountryMutation, useDeleteCountryMutation, useGetDegreeLevelsQuery, useCreateDegreeLevelMutation, useUpdateDegreeLevelMutation, useDeleteDegreeLevelMutation, useGetTagsQuery, useCreateTagMutation, useUpdateTagMutation, useDeleteTagMutation } from '@/lib/api/blogApi'
+import { useGetSubscribersQuery } from '@/lib/api/newsletterApi'
 
 function CountriesTab({
   countries,
@@ -29,13 +31,13 @@ function CountriesTab({
 }: {
   countries: any[]
   isLoading: boolean
-  onCreateCountry: (data: { name: string; code: string; flag_emoji?: string; region?: string; description?: string }) => Promise<void>
-  onUpdateCountry: (id: string, data: { name?: string; code?: string; flag_emoji?: string; region?: string; description?: string }) => Promise<void>
+  onCreateCountry: (data: { name: string; code: string; flag_emoji?: string; flag_image?: string; region?: string; description?: string }) => Promise<void>
+  onUpdateCountry: (id: string, data: { name?: string; code?: string; flag_emoji?: string; flag_image?: string; region?: string; description?: string }) => Promise<void>
   onDeleteCountry: (id: string) => Promise<void>
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [newCountry, setNewCountry] = useState({ name: '', code: '', flag_emoji: '', region: '', description: '' })
-  const [editForm, setEditForm] = useState({ name: '', code: '', flag_emoji: '', region: '', description: '' })
+  const [newCountry, setNewCountry] = useState({ name: '', code: '', flag_emoji: '', flag_image: '', region: '', description: '' })
+  const [editForm, setEditForm] = useState({ name: '', code: '', flag_emoji: '', flag_image: '', region: '', description: '' })
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
@@ -66,6 +68,7 @@ function CountriesTab({
       name: country.name,
       code: country.code,
       flag_emoji: country.flag_emoji || '',
+      flag_image: country.flag_image || '',
       region: country.region || '',
       description: country.description || ''
     })
@@ -73,7 +76,7 @@ function CountriesTab({
 
   const handleCancelEdit = () => {
     setEditingId(null)
-    setEditForm({ name: '', code: '', flag_emoji: '', region: '', description: '' })
+    setEditForm({ name: '', code: '', flag_emoji: '', flag_image: '', region: '', description: '' })
   }
 
   const handleSaveEdit = async (id: string) => {
@@ -87,7 +90,7 @@ function CountriesTab({
       return
     }
     await onCreateCountry(newCountry)
-    setNewCountry({ name: '', code: '', flag_emoji: '', region: '', description: '' })
+    setNewCountry({ name: '', code: '', flag_emoji: '', flag_image: '', region: '', description: '' })
   }
 
   if (isLoading) {
@@ -122,7 +125,7 @@ function CountriesTab({
       {/* Add New Country */}
       <div className="bg-primary-50 rounded-lg p-4 border border-primary-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4">Add New Country</h3>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">Country Name *</label>
             <input
@@ -145,7 +148,7 @@ function CountriesTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Flag</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">Flag Emoji</label>
             <input
               type="text"
               value={newCountry.flag_emoji}
@@ -182,10 +185,84 @@ function CountriesTab({
             />
           </div>
         </div>
+        
+        {/* Flag Image Upload Section */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">
+            🖼️ Flag Image (Optional)
+          </label>
+          {newCountry.flag_image ? (
+            <div className="flex items-center gap-3">
+              <img 
+                src={newCountry.flag_image} 
+                alt="Flag preview" 
+                className="w-24 h-16 object-contain rounded border-2 border-green-300 bg-white p-1 shadow-sm" 
+              />
+              <button
+                type="button"
+                onClick={() => setNewCountry({ ...newCountry, flag_image: '' })}
+                className="px-3 py-1 bg-red-500 text-white rounded text-sm font-semibold hover:bg-red-600 transition-colors"
+              >
+                Remove
+              </button>
+              <span className="text-xs text-green-700">✅ Image uploaded</span>
+            </div>
+          ) : (
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  
+                  if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file')
+                    return
+                  }
+                  
+                  if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size should be less than 5MB')
+                    return
+                  }
+                  
+                  try {
+                    const form = new FormData()
+                    form.append('file', file)
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/upload`, {
+                      method: 'POST',
+                      body: form,
+                    })
+                    const json = await res.json()
+                    if (json?.url) {
+                      setNewCountry({ ...newCountry, flag_image: json.url })
+                    } else {
+                      alert('Failed to upload image')
+                    }
+                  } catch (error) {
+                    alert('Image upload failed')
+                  }
+                }}
+                className="hidden"
+                id="new-country-flag-upload"
+              />
+              <label
+                htmlFor="new-country-flag-upload"
+                className="flex items-center justify-center gap-2 px-4 py-2 border-2 border-dashed border-neutral-300 rounded-lg bg-white hover:border-primary-400 hover:bg-primary-50 cursor-pointer transition-colors"
+              >
+                <span className="text-xl">📤</span>
+                <span className="text-sm font-medium text-neutral-700">Upload Flag Image</span>
+                <span className="text-xs text-neutral-500">(PNG, JPG, SVG)</span>
+              </label>
+            </div>
+          )}
+          <p className="text-xs text-neutral-500 mt-1">Upload country flag image (recommended: 16:10 ratio, 320x200px)</p>
+        </div>
+
         <button
           onClick={handleCreate}
           disabled={!newCountry.name.trim() || !newCountry.code.trim()}
-          className="mt-4 px-6 py-2 bg-cta-500 text-white rounded-lg font-semibold hover:bg-cta-600 transition-colors disabled:opacity-50"
+          className="mt-2 px-6 py-2 bg-cta-500 text-white rounded-lg font-semibold hover:bg-cta-600 transition-colors disabled:opacity-50"
         >
           <FaPlus className="inline mr-2" />
           Add Country
@@ -220,81 +297,163 @@ function CountriesTab({
               className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg hover:shadow-md transition-all bg-white"
             >
               {editingId === country.id ? (
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-                  <div>
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg"
-                      placeholder="Name"
-                    />
+                <div className="flex-1 space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm"
+                        placeholder="Name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">Code</label>
+                      <input
+                        type="text"
+                        value={editForm.code}
+                        onChange={(e) => setEditForm({ ...editForm, code: e.target.value.toUpperCase() })}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg uppercase text-sm"
+                        placeholder="Code"
+                        maxLength={2}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">Flag Emoji</label>
+                      <input
+                        type="text"
+                        value={editForm.flag_emoji}
+                        onChange={(e) => setEditForm({ ...editForm, flag_emoji: e.target.value })}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-2xl"
+                        placeholder="🇺🇸"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">Region</label>
+                      <select
+                        value={editForm.region}
+                        onChange={(e) => setEditForm({ ...editForm, region: e.target.value })}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm"
+                      >
+                        <option value="">Region</option>
+                        <option value="North America">North America</option>
+                        <option value="Europe">Europe</option>
+                        <option value="Asia">Asia</option>
+                        <option value="Oceania">Oceania</option>
+                        <option value="Africa">Africa</option>
+                        <option value="South America">South America</option>
+                        <option value="Middle East">Middle East</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-600 mb-1">Description</label>
+                      <input
+                        type="text"
+                        value={editForm.description}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm"
+                        placeholder="Description"
+                      />
+                    </div>
                   </div>
+                  
+                  {/* Flag Image Upload in Edit Mode */}
                   <div>
-                    <input
-                      type="text"
-                      value={editForm.code}
-                      onChange={(e) => setEditForm({ ...editForm, code: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg uppercase"
-                      placeholder="Code"
-                      maxLength={2}
-                    />
+                    <label className="block text-xs text-neutral-600 mb-1">🖼️ Flag Image</label>
+                    {editForm.flag_image ? (
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src={editForm.flag_image} 
+                          alt="Flag preview" 
+                          className="w-20 h-12 object-contain rounded border border-green-300 bg-white p-1" 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, flag_image: '' })}
+                          className="px-2 py-1 bg-red-500 text-white rounded text-xs font-semibold hover:bg-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (!file) return
+                            
+                            if (!file.type.startsWith('image/')) {
+                              alert('Please select an image file')
+                              return
+                            }
+                            
+                            if (file.size > 5 * 1024 * 1024) {
+                              alert('Image size should be less than 5MB')
+                              return
+                            }
+                            
+                            try {
+                              const form = new FormData()
+                              form.append('file', file)
+                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/upload`, {
+                                method: 'POST',
+                                body: form,
+                              })
+                              const json = await res.json()
+                              if (json?.url) {
+                                setEditForm({ ...editForm, flag_image: json.url })
+                              } else {
+                                alert('Failed to upload image')
+                              }
+                            } catch (error) {
+                              alert('Image upload failed')
+                            }
+                          }}
+                          className="hidden"
+                          id={`edit-flag-upload-${country.id}`}
+                        />
+                        <label
+                          htmlFor={`edit-flag-upload-${country.id}`}
+                          className="flex items-center justify-center gap-2 px-3 py-1.5 border border-dashed border-neutral-300 rounded-lg bg-white hover:border-primary-400 hover:bg-primary-50 cursor-pointer transition-colors text-xs"
+                        >
+                          <span>📤</span>
+                          <span>Upload Flag Image</span>
+                        </label>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <input
-                      type="text"
-                      value={editForm.flag_emoji}
-                      onChange={(e) => setEditForm({ ...editForm, flag_emoji: e.target.value })}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-2xl"
-                      placeholder="🇺🇸"
-                    />
-                  </div>
-                  <div>
-                    <select
-                      value={editForm.region}
-                      onChange={(e) => setEditForm({ ...editForm, region: e.target.value })}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg"
-                    >
-                      <option value="">Region</option>
-                      <option value="North America">North America</option>
-                      <option value="Europe">Europe</option>
-                      <option value="Asia">Asia</option>
-                      <option value="Oceania">Oceania</option>
-                      <option value="Africa">Africa</option>
-                      <option value="South America">South America</option>
-                      <option value="Middle East">Middle East</option>
-                    </select>
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      value={editForm.description}
-                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg"
-                      placeholder="Description"
-                    />
-                  </div>
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleSaveEdit(country.id)}
-                      className="p-2 text-primary-600 hover:bg-primary-50 rounded"
+                      className="px-3 py-1.5 bg-green-500 text-white rounded text-sm font-semibold hover:bg-green-600"
                       title="Save"
                     >
-                      <FaSave />
+                      <FaSave className="inline mr-1" /> Save
                     </button>
                     <button
                       onClick={handleCancelEdit}
-                      className="p-2 text-neutral-600 hover:bg-neutral-100 rounded"
+                      className="px-3 py-1.5 bg-neutral-400 text-white rounded text-sm font-semibold hover:bg-neutral-500"
                       title="Cancel"
                     >
-                      ×
+                      Cancel
                     </button>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="text-3xl">{country.flag_emoji || '🌍'}</div>
+                    <div className="text-3xl">
+                      {country.flag_image ? (
+                        <img src={country.flag_image} alt={country.name} className="w-10 h-7 object-cover rounded border border-neutral-200" />
+                      ) : (
+                        <span>{country.flag_emoji || '🌍'}</span>
+                      )}
+                    </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-neutral-900">{country.name}</h3>
@@ -440,7 +599,7 @@ function CategoriesTab({
         <button
           onClick={handleCreate}
           disabled={!newCategory.name.trim()}
-          className="text-black border mt-4 px-6 py-2 bg-forest-600 text-white rounded-lg font-semibold hover:bg-forest-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-black border mt-4 px-6 py-2 bg-forest-600 rounded-lg font-semibold hover:bg-forest-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FaPlus className="inline mr-2" />
           Create Category
@@ -905,8 +1064,201 @@ function DegreeLevelsTab({
   )
 }
 
+function NewsletterTab({ 
+  subscribers,
+  isLoading,
+  onRefresh
+}: {
+  subscribers: any[]
+  isLoading: boolean
+  onRefresh: () => void
+}) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeOnly, setActiveOnly] = useState(true)
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  // Filter subscribers
+  const filteredSubscribers = subscribers.filter((sub: any) => {
+    if (activeOnly && !sub.is_active) return false
+    if (!debouncedSearch) return true
+    return sub.email.toLowerCase().includes(debouncedSearch.toLowerCase())
+  })
+
+  const activeSubscribers = subscribers.filter((s: any) => s.is_active).length
+  const totalSubscribers = subscribers.length
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-neutral-200 border-t-primary-600"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Stats and Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-4 border border-primary-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-primary-700 font-semibold">Total Subscribers</p>
+              <p className="text-3xl font-bold text-primary-900 mt-1">{totalSubscribers}</p>
+            </div>
+            <FaEnvelope className="text-4xl text-primary-400 opacity-50" />
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-green-700 font-semibold">Active</p>
+              <p className="text-3xl font-bold text-green-900 mt-1">{activeSubscribers}</p>
+            </div>
+            <FaEnvelope className="text-4xl text-green-400 opacity-50" />
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-lg p-4 border border-neutral-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-neutral-700 font-semibold">Inactive</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-1">{totalSubscribers - activeSubscribers}</p>
+            </div>
+            <FaEnvelope className="text-4xl text-neutral-400 opacity-50" />
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="bg-white rounded-lg p-4 border border-neutral-200">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+              🔍 Search Email
+            </label>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by email..."
+              className="w-full px-4 py-2 border-2 border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div className="flex items-end">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={activeOnly}
+                onChange={(e) => setActiveOnly(e.target.checked)}
+                className="w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500"
+              />
+              <span className="text-sm font-semibold text-neutral-700">Show active only</span>
+            </label>
+          </div>
+        </div>
+        {debouncedSearch && (
+          <p className="text-sm text-neutral-600 mt-2">
+            Found {filteredSubscribers.length} result{filteredSubscribers.length !== 1 ? 's' : ''}
+          </p>
+        )}
+      </div>
+
+      {/* Subscribers List */}
+      {filteredSubscribers.length === 0 ? (
+        <div className="text-center py-12 border-2 border-dashed border-neutral-300 rounded-lg bg-neutral-50">
+          <FaEnvelope className="text-6xl text-neutral-300 mx-auto mb-4" />
+          <p className="text-lg font-semibold text-neutral-600">
+            {activeOnly ? 'No active subscribers found' : 'No subscribers found'}
+          </p>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-primary-600 hover:text-primary-700 font-semibold mt-2"
+            >
+              Clear search
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="text-sm text-neutral-600 mb-2">
+            Showing {filteredSubscribers.length} of {subscribers.length} subscriber{subscribers.length !== 1 ? 's' : ''}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse bg-white rounded-lg border border-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider border-b border-neutral-200">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider border-b border-neutral-200">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider border-b border-neutral-200">
+                    Subscribed At
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider border-b border-neutral-200">
+                    Unsubscribed At
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-200">
+                {filteredSubscribers.map((subscriber: any) => (
+                  <tr key={subscriber.id} className="hover:bg-neutral-50 transition-colors">
+                    <td className="px-4 py-3 text-sm text-neutral-900 font-medium">
+                      {subscriber.email}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                          subscriber.is_active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-neutral-100 text-neutral-800'
+                        }`}
+                      >
+                        {subscriber.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-neutral-600">
+                      {new Date(subscriber.subscribed_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-neutral-600">
+                      {subscriber.unsubscribed_at
+                        ? new Date(subscriber.unsubscribed_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'countries' | 'tags' | 'degree-levels' | 'stats'>('posts')
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'countries' | 'tags' | 'degree-levels' | 'newsletter' | 'stats'>('posts')
   const { data: postsData, isLoading, refetch } = useGetPostsQuery({})
   const [deletePost] = useDeletePostMutation()
   const [updateStatus] = useUpdatePostStatusMutation()
@@ -930,6 +1282,9 @@ export default function AdminDashboard() {
   const [createTag] = useCreateTagMutation()
   const [updateTag] = useUpdateTagMutation()
   const [deleteTag] = useDeleteTagMutation()
+
+  const { data: subscribersData, isLoading: isLoadingSubscribers, refetch: refetchSubscribers } = useGetSubscribersQuery({})
+  const subscribers = subscribersData?.data || []
 
   const posts = postsData?.data || []
   const categories = (categoriesData?.data || categoriesData || [])
@@ -991,7 +1346,7 @@ export default function AdminDashboard() {
             </div>
             <Link
               href="/admin/post/new"
-              className="text-black inline-flex items-center gap-2 bg-gradient-to-r from-forest-600 to-forest-700 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all shadow-md hover:scale-105"
+              className="text-black inline-flex items-center gap-2 bg-gradient-to-r from-forest-600 to-forest-700 px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all shadow-md hover:scale-105"
             >
               <FaPlus className="text-lg" /> <span className="font-bold">New Post</span>
             </Link>
@@ -1072,6 +1427,7 @@ export default function AdminDashboard() {
                 { id: 'countries', label: 'Countries', icon: FaGlobe },
                 { id: 'degree-levels', label: 'Degree Levels', icon: FaTag },
                 { id: 'tags', label: 'Tags', icon: FaTag },
+                { id: 'newsletter', label: 'Newsletter', icon: FaEnvelope },
                 { id: 'stats', label: 'Statistics', icon: FaChartLine }
               ].map((tab) => (
                 <button
@@ -1257,6 +1613,14 @@ export default function AdminDashboard() {
                     refetchTags()
                   }
                 }}
+              />
+            )}
+
+            {activeTab === 'newsletter' && (
+              <NewsletterTab
+                subscribers={subscribers}
+                isLoading={isLoadingSubscribers}
+                onRefresh={() => refetchSubscribers()}
               />
             )}
 

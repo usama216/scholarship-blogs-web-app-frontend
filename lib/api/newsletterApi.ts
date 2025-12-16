@@ -9,6 +9,22 @@ export interface NewsletterResponse {
   message: string
 }
 
+export interface NewsletterSubscriber {
+  id: string
+  email: string
+  subscribed_at: string
+  unsubscribed_at?: string
+  is_active: boolean
+}
+
+export interface NewsletterSubscribersResponse {
+  success: boolean
+  data: NewsletterSubscriber[]
+  total: number
+  page: number
+  limit: number
+}
+
 export const newsletterApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Subscribe to newsletter
@@ -30,11 +46,22 @@ export const newsletterApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Newsletter'],
     }),
+
+    // Get all subscribers (admin)
+    getSubscribers: builder.query<NewsletterSubscribersResponse, { active_only?: boolean; page?: number; limit?: number }>({
+      query: (params = {}) => ({
+        url: '/newsletter/subscribers',
+        method: 'GET',
+        params,
+      }),
+      providesTags: ['Newsletter'],
+    }),
   }),
 })
 
 export const {
   useSubscribeToNewsletterMutation,
   useUnsubscribeFromNewsletterMutation,
+  useGetSubscribersQuery,
 } = newsletterApi
 

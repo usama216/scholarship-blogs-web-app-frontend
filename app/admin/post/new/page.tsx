@@ -16,6 +16,39 @@ import {
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 import 'react-quill/dist/quill.snow.css'
 
+// Move CollapsibleSection outside to prevent re-creation on every render
+const CollapsibleSection = ({ 
+  id, 
+  title, 
+  children, 
+  isOpen, 
+  onToggle 
+}: { 
+  id: string
+  title: string
+  children: React.ReactNode
+  isOpen: boolean
+  onToggle: (id: string) => void
+}) => {
+  return (
+    <div className="border border-charcoal-200 rounded-lg overflow-hidden">
+      <button
+        type="button"
+        onClick={() => onToggle(id)}
+        className="w-full px-4 py-3 bg-charcoal-50 flex items-center justify-between hover:bg-charcoal-100 transition-colors"
+      >
+        <span className="font-semibold text-charcoal-900">{title}</span>
+        {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+      </button>
+      {isOpen && (
+        <div className="p-4 space-y-4">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function NewPostPage() {
   const router = useRouter()
   const [createPost, { isLoading }] = useCreatePostMutation()
@@ -143,20 +176,26 @@ export default function NewPostPage() {
     if (type === 'checkbox') {
       setFormData(prev => ({ ...prev, [name]: checked }))
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }))
-    }
-    
-    if (name === 'title' && !hasUserEditedSlug.current) {
-      const generatedSlug = value.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '')
-      setFormData(prev => ({ ...prev, slug: generatedSlug }))
-    }
-    if (name === 'slug') {
-      hasUserEditedSlug.current = true
-    }
-    if (name === 'excerpt') {
-      hasUserEditedExcerpt.current = true
+      // If title changes and slug hasn't been manually edited, update both in single state update
+      if (name === 'title' && !hasUserEditedSlug.current) {
+        const generatedSlug = value.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+        setFormData(prev => ({ 
+          ...prev, 
+          [name]: value,
+          slug: generatedSlug 
+        }))
+      } else {
+        setFormData(prev => ({ ...prev, [name]: value }))
+      }
+      
+      if (name === 'slug') {
+        hasUserEditedSlug.current = true
+      }
+      if (name === 'excerpt') {
+        hasUserEditedExcerpt.current = true
+      }
     }
   }
 
@@ -208,25 +247,8 @@ export default function NewPostPage() {
     }
   }
 
-  const CollapsibleSection = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => {
-    const isOpen = activeSection === id
-    return (
-      <div className="border border-charcoal-200 rounded-lg overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setActiveSection(isOpen ? '' : id)}
-          className="w-full px-4 py-3 bg-charcoal-50 flex items-center justify-between hover:bg-charcoal-100 transition-colors"
-        >
-          <span className="font-semibold text-charcoal-900">{title}</span>
-          {isOpen ? <FaChevronUp /> : <FaChevronDown />}
-        </button>
-        {isOpen && (
-          <div className="p-4 space-y-4">
-            {children}
-          </div>
-        )}
-      </div>
-    )
+  const handleToggleSection = (id: string) => {
+    setActiveSection(prev => prev === id ? '' : id)
   }
 
   return (
@@ -241,21 +263,21 @@ export default function NewPostPage() {
             <div className="flex items-center gap-3 text-charcoal-600">
               <button
                 onClick={() => router.back()}
-                className="px-4 py-2 text-charcoal-600 hover:bg-charcoal-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-charcoal-600 hover:bg-charcoal-100 rounded-lg border transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveDraft}
                 disabled={isLoading}
-                className="text-black flex items-center gap-2 px-6 py-2 bg-charcoal-600 text-white rounded-lg font-semibold hover:bg-charcoal-700 transition-colors disabled:opacity-50"
+                className="text-black flex items-center gap-2 px-6 py-2 bg-charcoal-600 rounded-lg border font-semibold hover:bg-charcoal-700 transition-colors disabled:opacity-50"
               >
                 <FaSave /> Save Draft
               </button>
               <button
                 onClick={handlePublish}
                 disabled={isLoading}
-                className="text-green-600  flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-forest-600 to-forest-700 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                className="text-green-600  flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-forest-600 to-forest-700 border rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
               >
                 <FaEye /> Publish
               </button>
@@ -267,7 +289,12 @@ export default function NewPostPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           {/* Basic Information */}
-          <CollapsibleSection id="basic" title="📝 Basic Information">
+          <CollapsibleSection 
+            id="basic" 
+            title="📝 Basic Information"
+            isOpen={activeSection === 'basic'}
+            onToggle={handleToggleSection}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-charcoal-700 mb-2">
@@ -351,7 +378,12 @@ export default function NewPostPage() {
           </CollapsibleSection>
 
           {/* Scholarship Details */}
-          <CollapsibleSection id="details" title="🎓 Scholarship Details">
+          <CollapsibleSection 
+            id="details" 
+            title="🎓 Scholarship Details"
+            isOpen={activeSection === 'details'}
+            onToggle={handleToggleSection}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-charcoal-700 mb-2">
@@ -505,7 +537,12 @@ export default function NewPostPage() {
           </CollapsibleSection>
 
           {/* Application Information */}
-          <CollapsibleSection id="application" title="📋 Application Information">
+          <CollapsibleSection 
+            id="application" 
+            title="📋 Application Information"
+            isOpen={activeSection === 'application'}
+            onToggle={handleToggleSection}
+          >
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-charcoal-700 mb-2">
@@ -620,7 +657,12 @@ export default function NewPostPage() {
           </CollapsibleSection>
 
           {/* Media & Additional */}
-          <CollapsibleSection id="media" title="🖼️ Media & Additional Information">
+          <CollapsibleSection 
+            id="media" 
+            title="🖼️ Media & Additional Information"
+            isOpen={activeSection === 'media'}
+            onToggle={handleToggleSection}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-charcoal-700 mb-2">
@@ -729,7 +771,12 @@ export default function NewPostPage() {
           </CollapsibleSection>
 
           {/* Categories & Organization */}
-          <CollapsibleSection id="organization" title="📂 Categories & Organization">
+          <CollapsibleSection 
+            id="organization" 
+            title="📂 Categories & Organization"
+            isOpen={activeSection === 'organization'}
+            onToggle={handleToggleSection}
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-charcoal-700 mb-2">
@@ -830,7 +877,12 @@ export default function NewPostPage() {
           </CollapsibleSection>
 
           {/* SEO Settings */}
-          <CollapsibleSection id="seo" title="🔍 SEO Settings">
+          <CollapsibleSection 
+            id="seo" 
+            title="🔍 SEO Settings"
+            isOpen={activeSection === 'seo'}
+            onToggle={handleToggleSection}
+          >
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-charcoal-700 mb-2">

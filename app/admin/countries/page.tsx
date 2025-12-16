@@ -19,6 +19,7 @@ export default function CountriesAdminPage() {
     name: '',
     code: '',
     flag_emoji: '',
+    flag_image: '',
     region: '',
     description: ''
   })
@@ -30,12 +31,13 @@ export default function CountriesAdminPage() {
         name: country.name || '',
         code: country.code || '',
         flag_emoji: country.flag_emoji || '',
+        flag_image: country.flag_image || '',
         region: country.region || '',
         description: country.description || ''
       })
     } else {
       setEditingCountry(null)
-      setFormData({ name: '', code: '', flag_emoji: '', region: '', description: '' })
+      setFormData({ name: '', code: '', flag_emoji: '', flag_image: '', region: '', description: '' })
     }
     setShowModal(true)
   }
@@ -131,8 +133,12 @@ export default function CountriesAdminPage() {
               <tbody className="bg-white divide-y divide-neutral-200">
                 {countries.map((country: any) => (
                   <tr key={country.id} className="hover:bg-neutral-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-2xl">
-                      {country.flag_emoji || '🌍'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {country.flag_image ? (
+                        <img src={country.flag_image} alt={country.name} className="w-12 h-8 object-cover rounded border border-neutral-200" />
+                      ) : (
+                        <span className="text-2xl">{country.flag_emoji || '🌍'}</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-bold text-neutral-900">{country.name}</div>
@@ -243,6 +249,93 @@ export default function CountriesAdminPage() {
                   />
                   <p className="text-xs text-neutral-500 mt-1">Copy flag emoji</p>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-neutral-900 mb-2">
+                  🖼️ Flag Image (Optional)
+                </label>
+                {formData.flag_image ? (
+                  <div className="space-y-3">
+                    <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
+                      <img 
+                        src={formData.flag_image} 
+                        alt="Flag preview" 
+                        className="w-full max-w-xs h-32 object-contain rounded border border-neutral-200 bg-white p-2 shadow-sm" 
+                      />
+                      <p className="text-xs text-green-700 mt-2">✅ Flag image uploaded successfully</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, flag_image: '' })}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 bg-neutral-50 hover:border-primary-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        
+                        // Validate file type
+                        if (!file.type.startsWith('image/')) {
+                          alert('Please select an image file')
+                          return
+                        }
+                        
+                        // Validate file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('Image size should be less than 5MB')
+                          return
+                        }
+                        
+                        try {
+                          const form = new FormData()
+                          form.append('file', file)
+                          
+                          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/upload`, {
+                            method: 'POST',
+                            body: form,
+                          })
+                          
+                          if (!res.ok) throw new Error('Upload failed')
+                          
+                          const json = await res.json()
+                          if (json?.url) {
+                            setFormData({ ...formData, flag_image: json.url })
+                          } else {
+                            alert('Failed to upload image. Please try again.')
+                          }
+                        } catch (error) {
+                          console.error('Upload error:', error)
+                          alert('Image upload failed. Please check your connection and try again.')
+                        }
+                      }}
+                      className="hidden"
+                      id="flag-image-upload"
+                    />
+                    <label
+                      htmlFor="flag-image-upload"
+                      className="flex flex-col items-center justify-center cursor-pointer"
+                    >
+                      <div className="text-4xl mb-2">📤</div>
+                      <p className="text-sm font-semibold text-neutral-700 mb-1">
+                        Click to upload flag image
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        PNG, JPG, SVG up to 5MB
+                      </p>
+                    </label>
+                  </div>
+                )}
+                <p className="text-xs text-neutral-500 mt-2">
+                  💡 Tip: Use high-quality flag images (recommended: 16:10 aspect ratio, 320x200px)
+                </p>
               </div>
 
               <div>

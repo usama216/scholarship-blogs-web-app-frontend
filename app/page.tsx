@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
+import Hero from '@/components/Hero'
 import FeaturedArticles from '@/components/FeaturedArticles'
 import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
@@ -91,16 +92,8 @@ export default function Home() {
       <div className="bg-white">
         <Header />
         
-        {/* Simple Hero Section */}
-        <section className="bg-white py-12 border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-bold text-neutral-900 mb-4">Find International Scholarships</h1>
-            <p className="text-xl text-neutral-700 mb-6">Browse fully funded scholarships and study abroad opportunities from universities worldwide.</p>
-            <a href="/blog" className="inline-block bg-cta-500 hover:bg-cta-600 text-white px-8 py-3 rounded-lg font-semibold text-lg">
-              Browse All Scholarships
-            </a>
-          </div>
-        </section>
+        {/* Hero Section */}
+        <Hero />
         
         {/* Ad Banner */}
         <AdBanner position="after-hero" />
