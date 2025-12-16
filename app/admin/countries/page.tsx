@@ -45,7 +45,7 @@ export default function CountriesAdminPage() {
   const handleCloseModal = () => {
     setShowModal(false)
     setEditingCountry(null)
-    setFormData({ name: '', code: '', flag_emoji: '', region: '', description: '' })
+    setFormData({ name: '', code: '', flag_emoji: '', flag_image: '', region: '', description: '' })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
