@@ -7,7 +7,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AdBanner from '@/components/AdBanner'
 import StructuredData from '@/components/StructuredData'
-import { FaCalendarAlt, FaUniversity, FaGlobe, FaGraduationCap, FaDollarSign, FaEnvelope, FaExternalLinkAlt, FaClock, FaUsers, FaFilePdf, FaPlayCircle } from 'react-icons/fa'
+import { FaCalendarAlt, FaUniversity, FaGlobe, FaGraduationCap, FaDollarSign, FaEnvelope, FaExternalLinkAlt, FaClock, FaFilePdf, FaPlayCircle } from 'react-icons/fa'
 
 function CountdownTimer({ deadline }: { deadline: string }) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null)
@@ -328,15 +328,6 @@ export default function BlogDetailPage() {
                           ? `Yes${post.application_fee_amount ? ` - $${post.application_fee_amount}` : ''}` 
                           : 'No'}
                       </div>
-                    </div>
-                  </div>
-                )}
-                {post.available_seats && (
-                  <div className="flex items-center gap-3">
-                    <FaUsers className="text-primary-600 text-xl" />
-                    <div>
-                      <div className="text-xs text-charcoal-500">Available Seats</div>
-                      <div className="font-semibold text-charcoal-900">{post.available_seats}</div>
                     </div>
                   </div>
                 )}
