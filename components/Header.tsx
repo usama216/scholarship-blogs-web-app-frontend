@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 const Header = () => {
-  const navItems = ['Home', 'Blog', 'About', 'Contact']
+  const navItems = ['Home', 'Blog', 'Jobs', 'About', 'Contact']
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const toggleMenu = () => {
@@ -37,7 +37,7 @@ const Header = () => {
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => {
-              const href = item === 'Home' ? '/' : `/${item.toLowerCase()}`
+              const href = item === 'Home' ? '/' : item === 'Blog' ? '/blog' : item === 'Jobs' ? '/jobs' : `/${item.toLowerCase()}`
               return (
                 <Link key={item} href={href}>
                   <span className="text-neutral-800 hover:text-primary-600 font-semibold transition-colors cursor-pointer">
@@ -67,7 +67,7 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-neutral-200 py-4">
             {navItems.map((item) => {
-              const href = item === 'Home' ? '/' : `/${item.toLowerCase()}`
+              const href = item === 'Home' ? '/' : item === 'Blog' ? '/blog' : item === 'Jobs' ? '/jobs' : `/${item.toLowerCase()}`
               return (
                 <Link key={item} href={href} onClick={closeMenu}>
                   <div className="text-neutral-800 hover:text-primary-600 font-semibold px-2 py-3 hover:bg-neutral-50">

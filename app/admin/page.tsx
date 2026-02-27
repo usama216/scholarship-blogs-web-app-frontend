@@ -17,9 +17,11 @@ import {
   FaSave,
   FaGlobe,
   FaSearch,
-  FaEnvelope
+  FaEnvelope,
+  FaBriefcase
 } from 'react-icons/fa'
 import { useGetPostsQuery, useDeletePostMutation, useUpdatePostStatusMutation, useGetCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useGetCountriesQuery, useCreateCountryMutation, useUpdateCountryMutation, useDeleteCountryMutation, useGetDegreeLevelsQuery, useCreateDegreeLevelMutation, useUpdateDegreeLevelMutation, useDeleteDegreeLevelMutation, useGetTagsQuery, useCreateTagMutation, useUpdateTagMutation, useDeleteTagMutation } from '@/lib/api/blogApi'
+import { useGetJobsQuery, useDeleteJobMutation, useUpdateJobStatusMutation } from '@/lib/api/jobsApi'
 import { useGetSubscribersQuery } from '@/lib/api/newsletterApi'
 
 function CountriesTab({
@@ -1258,10 +1260,14 @@ function NewsletterTab({
 }
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'countries' | 'tags' | 'degree-levels' | 'newsletter' | 'stats'>('posts')
+  const [activeTab, setActiveTab] = useState<'posts' | 'jobs' | 'categories' | 'countries' | 'tags' | 'degree-levels' | 'newsletter' | 'stats'>('posts')
   const { data: postsData, isLoading, refetch } = useGetPostsQuery({})
   const [deletePost] = useDeletePostMutation()
   const [updateStatus] = useUpdatePostStatusMutation()
+
+  const { data: jobsData, isLoading: isLoadingJobs, refetch: refetchJobs } = useGetJobsQuery(undefined)
+  const [deleteJob] = useDeleteJobMutation()
+  const [updateJobStatus] = useUpdateJobStatusMutation()
 
   const { data: categoriesData, isLoading: isLoadingCategories, refetch: refetchCategories } = useGetCategoriesQuery(undefined)
   const [createCategory] = useCreateCategoryMutation()
@@ -1287,6 +1293,7 @@ export default function AdminDashboard() {
   const subscribers = subscribersData?.data || []
 
   const posts = postsData?.data || []
+  const jobs = jobsData?.data || []
   const categories = (categoriesData?.data || categoriesData || [])
   const countries = (countriesData?.data || countriesData || [])
   const degreeLevels = (degreeLevelsData?.data || degreeLevelsData || [])
@@ -1327,6 +1334,29 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleDeleteJob = async (id: string) => {
+    if (confirm('Are you sure you want to delete this job?')) {
+      try {
+        await deleteJob(id).unwrap()
+        refetchJobs()
+      } catch (error) {
+        alert('Failed to delete job')
+      }
+    }
+  }
+
+  const handleToggleJobStatus = async (id: string, currentStatus: string) => {
+    try {
+      await updateJobStatus({
+        id,
+        status: currentStatus === 'published' ? 'draft' : 'published'
+      }).unwrap()
+      refetchJobs()
+    } catch (error) {
+      alert('Failed to update job status')
+    }
+  }
+
   const stats = {
     totalPosts: posts.length,
     publishedPosts: posts.filter((p: any) => p.status === 'published').length,
@@ -1344,12 +1374,20 @@ export default function AdminDashboard() {
               <h1 className="text-3xl font-bold text-charcoal-900">Admin Dashboard</h1>
               <p className="text-sm text-charcoal-600 mt-1">Manage your blog content</p>
             </div>
+            <div className="flex items-center gap-2">
+            <Link
+              href="/admin/job/new"
+              className="inline-flex items-center gap-2 bg-charcoal-600 text-black px-4 py-3 rounded-lg font-semibold hover:bg-charcoal-700 transition-all shadow-lg"
+            >
+              <FaBriefcase className="text-lg" /> New Job
+            </Link>
             <Link
               href="/admin/post/new"
               className="text-black inline-flex items-center gap-2 bg-gradient-to-r from-forest-600 to-forest-700 px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all shadow-md hover:scale-105"
             >
               <FaPlus className="text-lg" /> <span className="font-bold">New Post</span>
             </Link>
+          </div>
           </div>
         </div>
       </header>
@@ -1423,6 +1461,7 @@ export default function AdminDashboard() {
             <nav className="flex -mb-px">
               {[
                 { id: 'posts', label: 'Posts', icon: FaFileAlt },
+                { id: 'jobs', label: 'Jobs', icon: FaBriefcase },
                 { id: 'categories', label: 'Categories', icon: FaFolder },
                 { id: 'countries', label: 'Countries', icon: FaGlobe },
                 { id: 'degree-levels', label: 'Degree Levels', icon: FaTag },
@@ -1522,6 +1561,77 @@ export default function AdminDashboard() {
                             className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
                             title="Delete"
                           >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'jobs' && (
+              <div>
+                {isLoadingJobs ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="relative w-12 h-12">
+                        <div className="absolute inset-0 border-4 border-charcoal-200 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-golden-600 rounded-full border-t-transparent animate-spin"></div>
+                      </div>
+                      <p className="text-charcoal-600 font-medium">Loading jobs...</p>
+                    </div>
+                  </div>
+                ) : jobs.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FaBriefcase className="text-6xl text-charcoal-300 mx-auto mb-4" />
+                    <p className="text-charcoal-600 text-lg mb-4">No jobs yet</p>
+                    <Link
+                      href="/admin/job/new"
+                      className="inline-flex items-center gap-2 bg-forest-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-forest-700 transition-colors"
+                    >
+                      <FaPlus /> Create Your First Job
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {jobs.map((job: any) => (
+                      <motion.div
+                        key={job.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center justify-between p-4 border border-charcoal-200 rounded-lg hover:shadow-md transition-all"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-semibold text-charcoal-900">{job.title}</h3>
+                            <span className={`px-2 py-1 text-xs font-semibold rounded ${job.status === 'published' ? 'bg-forest-100 text-forest-700' : 'bg-golden-100 text-golden-700'}`}>
+                              {job.status}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-semibold rounded ${job.location_type === 'international' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
+                              {job.location_type}
+                            </span>
+                          </div>
+                          <p className="text-sm text-charcoal-600 mt-1">{job.company_name}</p>
+                          <div className="flex items-center gap-4 mt-2 text-xs text-charcoal-500">
+                            <span>Views: {job.views || 0}</span>
+                            <span>•</span>
+                            <span>{new Date(job.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleJobStatus(job.id, job.status)}
+                            className="p-2 text-charcoal-600 hover:bg-charcoal-100 rounded transition-colors"
+                            title={job.status === 'published' ? 'Unpublish' : 'Publish'}
+                          >
+                            {job.status === 'published' ? <FaEyeSlash /> : <FaEye />}
+                          </button>
+                          <Link href={`/admin/job/edit/${job.id}`} className="p-2 text-forest-600 hover:bg-forest-50 rounded transition-colors" title="Edit">
+                            <FaEdit />
+                          </Link>
+                          <button onClick={() => handleDeleteJob(job.id)} className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
                             <FaTrash />
                           </button>
                         </div>

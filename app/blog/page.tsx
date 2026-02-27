@@ -339,10 +339,10 @@ export default function BlogPage() {
 
         {/* Categories Quick Links */}
         {categories.length > 0 && (
-          <section className="mb-8">
+          <section id="categories" className="mb-8">
             <h2 className="text-2xl font-bold text-neutral-900 mb-4">📂 Browse by Category</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {categories.map((category: any) => (
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+              {categories.slice(0, 12).map((category: any) => (
                 <Link key={category.id} href={`/blog/category/${category.slug}`}>
                   <div className="border-2 border-neutral-200 hover:border-primary-600 hover:bg-primary-50 rounded-lg p-4 transition-all">
                     <h3 className="font-bold text-neutral-900">{category.name}</h3>
@@ -353,6 +353,16 @@ export default function BlogPage() {
                 </Link>
               ))}
             </div>
+            {categories.length > 12 && (
+              <div className="flex justify-center mt-4">
+                <Link
+                  href="/blog#categories"
+                  className="px-6 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  View More
+                </Link>
+              </div>
+            )}
           </section>
         )}
 

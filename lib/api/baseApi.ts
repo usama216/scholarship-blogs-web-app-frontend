@@ -10,7 +10,7 @@ export const baseApi = createApi({
       return headers
     },
   }),
-  tagTypes: ['Newsletter', 'Post', 'Category', 'Country', 'DegreeLevel', 'Tag', 'FundingType'],
+  tagTypes: ['Newsletter', 'Post', 'Category', 'Country', 'DegreeLevel', 'Tag', 'FundingType', 'Job'],
   endpoints: () => ({}),
 })
 
