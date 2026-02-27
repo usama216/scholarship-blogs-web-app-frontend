@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useGetJobsQuery } from '@/lib/api/jobsApi'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
 import Link from 'next/link'
 import { FaBriefcase, FaMapMarkerAlt, FaCalendarAlt, FaGlobe, FaEnvelope, FaExternalLinkAlt } from 'react-icons/fa'
 
@@ -161,8 +160,6 @@ export default function JobDetailPage() {
             </a>
           )}
         </div>
-
-        <AdBanner position="in-article" />
 
         {relatedJobs.length > 0 && (
           <section className="mt-12 pt-8 border-t border-neutral-200">

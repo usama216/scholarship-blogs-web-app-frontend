@@ -4,7 +4,6 @@ import Hero from '@/components/Hero'
 import FeaturedArticles from '@/components/FeaturedArticles'
 import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
 
 export const metadata: Metadata = {
   title: 'Scholarship Gateway - Your Path to Foreign Scholarships | Study Abroad',
@@ -95,25 +94,12 @@ export default function Home() {
         {/* Hero Section */}
         <Hero />
         
-        {/* Ad Banner */}
-        <AdBanner position="after-hero" />
-        
         {/* Featured Articles - Main Content */}
         <FeaturedArticles />
-        
-        {/* Ad Banner between sections */}
-        <AdBanner position="between-sections" />
-        
-        {/* In-Article Ad */}
-        <div className="py-6">
-          <AdBanner position="in-article" />
-        </div>
         
         {/* Newsletter */}
         <Newsletter />
         
-        {/* Ad Banner before footer */}
-        <AdBanner position="before-footer" />
         
         <Footer />
       </div>

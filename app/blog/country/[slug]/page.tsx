@@ -3,7 +3,6 @@
 import { useParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
 import Link from 'next/link'
 import { useGetPostsByCountrySlugQuery } from '@/lib/api/blogApi'
 
@@ -57,8 +56,6 @@ export default function CountryPage() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
-            {/* Ad Banner */}
-            <AdBanner position="between-sections" />
 
             {/* Scholarships List */}
             <section className="my-8">
@@ -110,10 +107,6 @@ export default function CountryPage() {
               )}
             </section>
 
-            {/* Ad Banners */}
-            <div className="my-8">
-              <AdBanner position="in-article" />
-            </div>
 
             {/* Back Button */}
             <div className="text-center mt-8">

@@ -114,58 +114,26 @@ const AdBanner = ({ position }: AdBannerProps) => {
           Advertisement
         </div>
         
-        {/* Desktop Ad */}
-        <div className="hidden md:block">
-          <div 
-            className="flex items-center justify-center bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded"
-            style={{ 
-              width: config.desktop.width, 
-              height: config.desktop.height 
-            }}
-          >
-            {/* 
-              REPLACE THIS WITH YOUR ADSENSE CODE:
-              
-              <ins
-                className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                data-ad-slot="XXXXXXXXXX"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              ></ins>
-            */}
-            <div className="text-center text-gray-400 text-sm">
-              <div className="font-semibold">{config.desktop.format}</div>
-              <div className="text-xs mt-1">AdSense Ready</div>
-            </div>
-          </div>
+        {/* Desktop Ad - Google AdSense (test ID shows real-looking sample ads) */}
+        <div className="hidden md:block" style={{ minWidth: config.desktop.width, minHeight: config.desktop.height }}>
+          <ins
+            className="adsbygoogle"
+            style={{ display: 'block' }}
+            data-ad-client="ca-pub-3940256099942544"
+            data-ad-slot="21775736363"
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
         </div>
 
         {/* Mobile Ad */}
-        <div className="block md:hidden">
-          <div 
-            className="flex items-center justify-center bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded"
-            style={{ 
-              width: config.mobile.width, 
-              height: config.mobile.height 
-            }}
-          >
-            {/* 
-              REPLACE THIS WITH YOUR ADSENSE CODE:
-              
-              <ins
-                className="adsbygoogle"
-                style={{ display: 'inline-block', width: '320px', height: '100px' }}
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                data-ad-slot="XXXXXXXXXX"
-              ></ins>
-            */}
-            <div className="text-center text-gray-400 text-xs">
-              <div className="font-semibold">{config.mobile.format}</div>
-              <div className="text-[10px] mt-1">AdSense Ready</div>
-            </div>
-          </div>
+        <div className="block md:hidden" style={{ minWidth: config.mobile.width, minHeight: config.mobile.height }}>
+          <ins
+            className="adsbygoogle"
+            style={{ display: 'inline-block', width: config.mobile.width, height: config.mobile.height }}
+            data-ad-client="ca-pub-3940256099942544"
+            data-ad-slot="21775736363"
+          />
         </div>
       </motion.div>
     </aside>

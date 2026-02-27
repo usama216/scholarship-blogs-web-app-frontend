@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useGetPostsQuery } from '@/lib/api/blogApi'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
 import StructuredData from '@/components/StructuredData'
 import { FaCalendarAlt, FaUniversity, FaGlobe, FaGraduationCap, FaDollarSign, FaEnvelope, FaExternalLinkAlt, FaClock, FaFilePdf, FaPlayCircle } from 'react-icons/fa'
 
@@ -205,16 +204,9 @@ export default function BlogDetailPage() {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_minmax(0,_800px)_1fr] gap-6">
-          {/* Left Ad (xl+) */}
-          <aside className="hidden xl:block">
-            <div className="sticky top-20">
-              <AdBanner position="left-rail" />
-            </div>
-          </aside>
-
-          {/* Content */}
-          <article className="bg-white rounded-2xl shadow border border-charcoal-200 overflow-hidden">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_minmax(0,_380px)] gap-8">
+          {/* Main Content */}
+          <article className="bg-white rounded-2xl shadow border border-charcoal-200 overflow-hidden min-w-0">
             {post.featured_image && (
               <div className="w-full h-72 md:h-96 bg-charcoal-100 relative">
                 <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" />
@@ -381,10 +373,6 @@ export default function BlogDetailPage() {
                 </div>
               )}
 
-              {/* In-Article Ad */}
-              <div className="my-8">
-                <AdBanner position="in-article" />
-              </div>
 
               {/* Scholarship Benefits */}
               {post.scholarship_benefits && (
@@ -467,21 +455,12 @@ export default function BlogDetailPage() {
                 </div>
               </div>
 
-              {/* Mobile Anchor Ad */}
-              <div className="md:hidden my-6">
-                <AdBanner position="mobile-anchor" />
-              </div>
             </div>
           </article>
 
-          {/* Right Ad (xl+) */}
+          {/* Right Sidebar - Featured Scholarships */}
           <aside className="hidden xl:block">
             <div className="sticky top-20 space-y-6">
-              <AdBanner position="right-rail" />
-              <AdBanner position="sidebar-rectangle" />
-              <AdBanner position="half-page" />
-              
-              {/* Featured Posts */}
               {featured.length > 0 && (
                 <div className="bg-white rounded-xl shadow border border-charcoal-200 p-4">
                   <h3 className="text-base font-semibold text-charcoal-900 mb-3">Featured Scholarships</h3>
@@ -506,16 +485,10 @@ export default function BlogDetailPage() {
                   </ul>
                 </div>
               )}
-              
-              <AdBanner position="square" />
             </div>
           </aside>
         </div>
 
-        {/* Bottom Ad */}
-        <div className="mt-10">
-          <AdBanner position="between-sections" />
-        </div>
 
         {/* Related Scholarships */}
         {relatedPosts.length > 0 && (
@@ -566,10 +539,6 @@ export default function BlogDetailPage() {
           </div>
         )}
         
-        {/* Large Leaderboard before Footer */}
-        <div className="mt-16">
-          <AdBanner position="before-footer" />
-        </div>
       </div>
 
       <Footer />

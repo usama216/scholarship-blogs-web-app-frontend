@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
 import Link from 'next/link'
 import { useGetJobsQuery, useGetEmploymentTypesQuery } from '@/lib/api/jobsApi'
 import { useGetCountriesQuery } from '@/lib/api/blogApi'
@@ -61,7 +60,6 @@ export default function JobsPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <AdBanner position="between-sections" />
 
         <div className="flex gap-2 mb-6 border-b border-neutral-200">
           <button onClick={() => setLocationFilter('all')} className={`px-6 py-3 font-semibold border-b-2 -mb-px ${locationFilter === 'all' ? 'border-primary-600 text-primary-600' : 'border-transparent text-neutral-600'}`}>All Jobs</button>
@@ -127,7 +125,6 @@ export default function JobsPage() {
             ))}
           </div>
         )}
-        <AdBanner position="in-article" />
       </div>
       <Footer />
     </main>

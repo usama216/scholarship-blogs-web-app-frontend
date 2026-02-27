@@ -118,7 +118,11 @@ export default function EditJobPage() {
 
   const handleSave = async () => {
     try {
-      await updateJob({ id, ...formData }).unwrap()
+      const payload = {
+        ...formData,
+        remote_work: formData.remote_work || undefined,
+      }
+      await updateJob({ id, ...payload }).unwrap()
       router.push('/admin')
     } catch (error) {
       alert('Failed to update job. Please try again.')

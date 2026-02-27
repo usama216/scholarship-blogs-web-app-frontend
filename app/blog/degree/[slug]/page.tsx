@@ -3,7 +3,6 @@
 import { useParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
 import Link from 'next/link'
 import { useGetPostsQuery, useGetDegreeLevelsQuery } from '@/lib/api/blogApi'
 import { FaGraduationCap } from 'react-icons/fa'
@@ -84,8 +83,6 @@ export default function DegreeLevelPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Ad Banner */}
-        <AdBanner position="between-sections" />
 
         {/* Results Count */}
         <div className="mb-6 text-sm text-neutral-600">
@@ -154,14 +151,6 @@ export default function DegreeLevelPage() {
           </div>
         )}
 
-        {/* Ad Banners */}
-        <div className="my-8">
-          <AdBanner position="in-article" />
-        </div>
-        
-        <div className="my-8">
-          <AdBanner position="before-footer" />
-        </div>
       </div>
 
       <Footer />

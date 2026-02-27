@@ -96,9 +96,15 @@ export default function NewJobPage() {
     if (name === 'slug') hasUserEditedSlug.current = true
   }
 
+  const getPayload = (status: 'draft' | 'published') => ({
+    ...formData,
+    status,
+    remote_work: formData.remote_work || undefined,
+  })
+
   const handleSaveDraft = async () => {
     try {
-      await createJob({ ...formData, status: 'draft' }).unwrap()
+      await createJob(getPayload('draft')).unwrap()
       router.push('/admin')
     } catch (error) {
       alert('Failed to save draft. Please try again.')
@@ -107,7 +113,7 @@ export default function NewJobPage() {
 
   const handlePublish = async () => {
     try {
-      await createJob({ ...formData, status: 'published' }).unwrap()
+      await createJob(getPayload('published')).unwrap()
       router.push('/admin')
     } catch (error) {
       alert('Failed to publish job. Please try again.')

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import AdBanner from '@/components/AdBanner'
+import CountriesCarousel from '@/components/CountriesCarousel'
 import Link from 'next/link'
 import { useGetPostsQuery, useGetCategoriesQuery, useGetCountriesQuery, useGetDegreeLevelsQuery, useGetFundingTypesQuery } from '@/lib/api/blogApi'
 import { FaSearch, FaFilter, FaSort, FaTimes } from 'react-icons/fa'
@@ -163,8 +163,6 @@ export default function BlogPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Ad Banner */}
-        <AdBanner position="between-sections" />
 
         {/* Search and Filter Bar */}
         <div className="mb-6 space-y-4">
@@ -320,22 +318,8 @@ export default function BlogPage() {
           Showing {filteredAndSortedPosts.length} of {allPosts.length} scholarships
         </div>
 
-        {/* Countries Quick Links */}
-        {countries.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-4">🌍 Browse by Country</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {countries.slice(0, 20).map((country: any) => (
-                <Link key={country.id} href={`/blog/country/${country.slug}`}>
-                  <div className="border-2 border-neutral-200 hover:border-cta-500 rounded-lg p-3 text-center hover:bg-cta-50 transition-all">
-                    <div className="text-2xl mb-1">{country.flag_emoji || '🌍'}</div>
-                    <h3 className="font-bold text-neutral-900 text-2xl">{country.name}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Countries Carousel */}
+        {countries.length > 0 && <CountriesCarousel countries={countries} />}
 
         {/* Categories Quick Links */}
         {categories.length > 0 && (
@@ -366,10 +350,6 @@ export default function BlogPage() {
           </section>
         )}
 
-        {/* Ad Banner */}
-        <div className="my-8">
-          <AdBanner position="in-article" />
-        </div>
 
         {/* Scholarships List */}
         <section className="mb-8">
@@ -451,14 +431,6 @@ export default function BlogPage() {
           )}
         </section>
 
-        {/* Ad Banners */}
-        <div className="my-8">
-          <AdBanner position="square" />
-        </div>
-        
-        <div className="my-8">
-          <AdBanner position="before-footer" />
-        </div>
       </div>
 
       <Footer />
