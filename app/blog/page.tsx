@@ -31,19 +31,6 @@ export default function BlogPage() {
   const [sortBy, setSortBy] = useState<'latest' | 'deadline' | 'popular' | 'fully-funded'>('latest')
   const [showFilters, setShowFilters] = useState(false)
 
-  const getTextPreview = (html: string, maxLength = 160) => {
-    if (!html) return ''
-    const text = html.replace(/<[^>]*>/g, '')
-    const decoded = text
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-    const trimmed = decoded.trim()
-    return trimmed.length > maxLength ? trimmed.substring(0, maxLength) + '...' : trimmed
-  }
-
   // Filter and sort posts
   const filteredAndSortedPosts = useMemo(() => {
     let filtered = [...allPosts]
@@ -372,57 +359,30 @@ export default function BlogPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
               {filteredAndSortedPosts.map((post: any) => (
                 <Link key={post.id} href={`/blog/${post.slug}`}>
-                  <div className="border border-neutral-200 hover:border-primary-600 hover:shadow-md rounded-lg p-5 hover:bg-neutral-50 transition-all">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-1">
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {post.funding_types && (
-                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
-                              {post.funding_types.name}
-                            </span>
-                          )}
-                          {post.countries && (
-                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                              {post.countries.flag_emoji} {post.countries.name}
-                            </span>
-                          )}
-                          {post.degree_levels && post.degree_levels.length > 0 && (
-                            post.degree_levels.slice(0, 2).map((dl: any) => (
-                              <span key={dl.id} className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">
-                                {dl.name}
-                              </span>
-                            ))
-                          )}
-                        </div>
-                        <h3 className="text-lg font-bold text-neutral-900 mb-2 hover:text-primary-600">
-                          {post.title}
-                        </h3>
-                        <p className="text-neutral-700 mb-2 text-sm leading-relaxed">
-                          {post.excerpt ? getTextPreview(post.excerpt) : getTextPreview(post.content)}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600">
-                          <span>📅 {new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                          {post.application_deadline && (
-                            <span className="px-2 py-1 bg-red-100 text-red-700 rounded">
-                              Deadline: {new Date(post.application_deadline).toLocaleDateString()}
-                            </span>
-                          )}
-                          {post.categories && (
-                            <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded">
-                              📂 {post.categories.name}
-                            </span>
-                          )}
-                          {post.views > 0 && (
-                            <span>👁️ {post.views} views</span>
-                          )}
-                        </div>
+                  <div className="flex items-start gap-3">
+                    {post.featured_image ? (
+                      <div className="w-24 h-16 bg-transparent rounded-sm flex-shrink-0 flex items-center justify-center">
+                        <img src={post.featured_image} alt={post.title} className="w-full h-full object-contain" />
                       </div>
-                      {post.featured_image && (
-                        <img src={post.featured_image} alt={post.title} className="w-24 h-24 object-cover rounded flex-shrink-0" />
-                      )}
+                    ) : (
+                      <div className="w-24 h-16 bg-neutral-200 rounded-sm flex-shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <h3 className="text-[15px] leading-5 font-medium text-neutral-900 line-clamp-4">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-neutral-500 mt-1">
+                        {post.created_at
+                          ? new Date(post.created_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : ''}
+                      </p>
                     </div>
                   </div>
                 </Link>

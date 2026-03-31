@@ -152,6 +152,18 @@ p {
   padding-left: 2rem;
 }
 
+.prose ul,
+.blog-content ul {
+  list-style-type: disc;
+  list-style-position: outside;
+}
+
+.prose ol,
+.blog-content ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+}
+
 .prose li,
 .blog-content li {
   margin-bottom: 0.75rem;

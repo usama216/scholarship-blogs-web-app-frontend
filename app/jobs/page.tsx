@@ -6,7 +6,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { useGetJobsQuery, useGetEmploymentTypesQuery } from '@/lib/api/jobsApi'
 import { useGetCountriesQuery } from '@/lib/api/blogApi'
-import { FaSearch, FaBriefcase, FaCalendarAlt } from 'react-icons/fa'
+import { FaSearch, FaBriefcase } from 'react-icons/fa'
 
 export default function JobsPage() {
   const { data: jobsData, isLoading } = useGetJobsQuery(undefined)
@@ -42,12 +42,6 @@ export default function JobsPage() {
     })
     return filtered
   }, [allJobs, searchQuery, locationFilter, selectedCountry, selectedEmploymentType, sortBy])
-
-  const getTextPreview = (html: string, maxLength = 150) => {
-    if (!html) return ''
-    const text = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
-  }
 
   return (
     <main className="min-h-screen bg-white">
@@ -98,27 +92,32 @@ export default function JobsPage() {
             <p className="text-neutral-600 text-lg">No jobs found</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
             {filteredAndSortedJobs.map((job: any) => (
               <Link key={job.id} href={`/jobs/${job.slug}`}>
-                <div className="border border-neutral-200 hover:border-primary-500 rounded-lg p-6 hover:shadow-lg transition-all">
-                  <div className="flex flex-col md:flex-row md:items-start gap-4">
-                    {job.company_logo ? <img src={job.company_logo} alt="" className="w-16 h-16 object-contain rounded-lg border" /> : <div className="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center"><FaBriefcase className="text-2xl text-neutral-400" /></div>}
-                    <div className="flex-1">
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        <h2 className="text-xl font-bold text-neutral-900 hover:text-primary-600">{job.title}</h2>
-                        <span className={`px-2 py-0.5 text-xs font-semibold rounded ${job.location_type === 'international' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>{job.location_type}</span>
-                        {job.employment_types && <span className="px-2 py-0.5 text-xs bg-neutral-100 text-neutral-700 rounded">{job.employment_types.name}</span>}
-                      </div>
-                      <p className="text-neutral-600 font-medium mb-1">{job.company_name}</p>
-                      <p className="text-neutral-600 text-sm mb-3">{getTextPreview(job.excerpt || job.content)}</p>
-                      <div className="flex flex-wrap gap-4 text-sm text-neutral-500">
-                        {job.countries && <span>{job.countries.flag_emoji} {job.countries.name}</span>}
-                        {job.salary_range && <span>{job.salary_range}</span>}
-                        {job.remote_work && <span className="capitalize">{job.remote_work}</span>}
-                        {job.application_deadline && <span className="flex items-center gap-1"><FaCalendarAlt /> {new Date(job.application_deadline).toLocaleDateString()}</span>}
-                      </div>
+                <div className="flex items-start gap-3">
+                  {job.company_logo ? (
+                    <div className="w-24 h-16 bg-transparent rounded-sm flex-shrink-0 flex items-center justify-center">
+                      <img src={job.company_logo} alt={job.company_name || job.title} className="w-full h-full object-contain" />
                     </div>
+                  ) : (
+                    <div className="w-24 h-16 bg-neutral-200 rounded-sm flex-shrink-0 flex items-center justify-center">
+                      <FaBriefcase className="text-neutral-400" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h2 className="text-[15px] leading-5 font-medium text-neutral-900 line-clamp-4">
+                      {job.title}
+                    </h2>
+                    <p className="text-sm text-neutral-500 mt-1">
+                      {job.created_at
+                        ? new Date(job.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                        : ''}
+                    </p>
                   </div>
                 </div>
               </Link>

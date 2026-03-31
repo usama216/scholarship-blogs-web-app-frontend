@@ -204,12 +204,12 @@ export default function BlogDetailPage() {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_minmax(0,_380px)] gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_minmax(0,_300px)] gap-8">
           {/* Main Content */}
           <article className="bg-white rounded-2xl shadow border border-charcoal-200 overflow-hidden min-w-0">
             {post.featured_image && (
-              <div className="w-full h-72 md:h-96 bg-charcoal-100 relative">
-                <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" />
+              <div className="w-full bg-charcoal-100 relative flex justify-center">
+                <img src={post.featured_image} alt={post.title} className="w-full h-auto object-contain" />
                 {post.host_university_logo && (
                   <div className="absolute bottom-4 right-4 bg-white p-2 rounded-lg shadow-lg">
                     <img src={post.host_university_logo} alt="University Logo" className="h-16 w-auto object-contain" />
@@ -464,19 +464,31 @@ export default function BlogDetailPage() {
               {featured.length > 0 && (
                 <div className="bg-white rounded-xl shadow border border-charcoal-200 p-4">
                   <h3 className="text-base font-semibold text-charcoal-900 mb-3">Featured Scholarships</h3>
-                  <ul className="space-y-3">
+                  <ul className="space-y-4">
                     {featured.map((fp: any) => (
                       <li key={fp.id}>
                         <a href={`/blog/${fp.slug}`} className="group block">
-                          <div className="flex gap-3 items-center">
+                          <div className="flex items-start gap-3">
                             {fp.featured_image ? (
-                              <img src={fp.featured_image} alt={fp.title} className="w-14 h-14 rounded object-cover border" />
+                              <div className="w-24 h-16 bg-transparent rounded-sm flex-shrink-0 flex items-center justify-center">
+                                <img src={fp.featured_image} alt={fp.title} className="w-full h-full object-contain" />
+                              </div>
                             ) : (
-                              <div className="w-14 h-14 rounded bg-charcoal-100 border" />
+                              <div className="w-24 h-16 bg-charcoal-100 rounded-sm flex-shrink-0" />
                             )}
-                            <div>
-                              <p className="text-sm font-medium text-charcoal-900 group-hover:text-golden-700 line-clamp-2">{fp.title}</p>
-                              <p className="text-xs text-charcoal-500">{fp.created_at ? new Date(fp.created_at).toLocaleDateString() : ''}</p>
+                            <div className="min-w-0">
+                              <p className="text-[15px] leading-5 font-medium text-charcoal-900 group-hover:text-golden-700 line-clamp-4">
+                                {fp.title}
+                              </p>
+                              <p className="text-sm text-charcoal-500 mt-1">
+                                {fp.created_at
+                                  ? new Date(fp.created_at).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })
+                                  : ''}
+                              </p>
                             </div>
                           </div>
                         </a>
